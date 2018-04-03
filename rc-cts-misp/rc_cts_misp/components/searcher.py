@@ -218,9 +218,21 @@ class MISPThreatSearcher(BaseComponent):
                     UriProp(name="MISP Link", value=link),
                 )
                 # Add all the tags as separate properties
+                tags = {}
                 for tag in event.get("Tag"):
-                    tag_name, tag_value = tag["name"].split(":", 1)
-                    hit.append(StringProp(name="{}:".format(tag_name), value=tag_value))
+                    try:
+                        tag_name, tag_value = tag["name"].split(":", 1)
+                    except:
+                        tag_value = tag["name"]
+                        tag_name = 'tag'
+                    if tag_name not in tags:
+                        tags[tag_name] = 0
+                        tag_name_modified = "{}_{}".format(tag_name, tags[tag_name])
+                    else:
+                        tags[tag_name] += 1
+                        tag_name_modified = "{}_{}".format(tag_name, tags[tag_name])
+                    hit.append(StringProp(name="{}:".format(tag_name_modified),
+                                          value=tag_value))
                 hits.append(hit)
 
         return hits
